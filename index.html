@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Terminal Jujutsu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Hanken+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0710;--glass:rgba(24,16,34,.72);--ink:#efe7f5;--mut:#a595b3;--line:rgba(255,255,255,.12);--acc:#e0344c;--cur:#7a4dff;--on:#fff}
+:root[data-theme="light"]{--bg:#ddd5e6;--glass:rgba(255,255,255,.75);--ink:#1c1426;--mut:#5d4f6c;--line:rgba(0,0,0,.14);--acc:#b3182f;--cur:#5b34d6}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Hanken Grotesk',system-ui,sans-serif;overflow:hidden;
+position:relative;min-height:100vh}
+.wall{position:fixed;inset:0;z-index:0;
+background:
+radial-gradient(60vmax 40vmax at 78% 18%,rgba(122,77,255,.38),transparent 60%),
+radial-gradient(50vmax 36vmax at 15% 85%,rgba(224,52,76,.32),transparent 62%),
+radial-gradient(30vmax 30vmax at 50% 55%,rgba(0,0,0,.55),transparent 70%),var(--bg)}
+:root[data-theme="light"] .wall{opacity:.55}
+.wall::after{content:"呪";position:absolute;right:6vw;bottom:8vh;font-size:min(46vw,420px);line-height:1;font-weight:900;color:var(--ink);opacity:.045;font-family:serif;user-select:none}
+.wall::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,255,255,.025) 46px 47px)}
+.desk{position:relative;z-index:1;height:calc(100vh - 56px);padding:max(22px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 16px max(16px,env(safe-area-inset-left));
+display:flex;flex-direction:column;gap:6px;flex-wrap:wrap;align-content:flex-start}
+.ico{width:112px;padding:10px 6px 8px;border-radius:12px;background:transparent;border:1px solid transparent;color:inherit;font:inherit;cursor:pointer;
+display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;text-align:center}
+.ico:hover,.ico:focus-visible{background:rgba(255,255,255,.09);border-color:var(--line);outline:none}
+.ico .g{width:66px;height:66px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--line);box-shadow:0 8px 22px rgba(0,0,0,.45)}
+.ico svg{width:36px;height:36px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico span{font-size:13px;font-weight:500;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+:root[data-theme="light"] .ico span{text-shadow:none}
+.g1{background:linear-gradient(145deg,#7a4dff,#3a1d99)}
+.g2{background:linear-gradient(145deg,#e0344c,#7a0f22)}
+.g3{background:linear-gradient(145deg,#2c2438,#0f0b16)}
+.lock{position:absolute;right:14px;top:10px;width:18px;height:18px;border-radius:50%;background:var(--acc);display:grid;place-items:center}
+.lock svg{width:10px;height:10px;stroke:#fff;stroke-width:2.6}
+.ico{position:relative}
+.bar{position:fixed;left:0;right:0;bottom:0;height:56px;z-index:3;background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;
+padding:0 max(16px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(16px,env(safe-area-inset-left))}
+.start{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:20px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.start i{font-style:normal;background:var(--acc);color:#fff;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-family:serif;font-size:19px}
+.clock{font-family:'JetBrains Mono',monospace;text-align:right;font-size:13px;line-height:1.25;color:var(--mut)}
+.clock b{display:block;color:var(--ink);font-size:16px}
+.veil{position:fixed;inset:0;z-index:5;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px}
+.veil.on{display:flex}
+.win{width:min(380px,100%);background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden}
+:root[data-theme="light"] .win{background:#f7f2fb}
+.tb{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+.x{background:none;border:0;color:var(--mut);font-size:20px;line-height:1;cursor:pointer;padding:2px 6px}
+.in{padding:20px 18px 18px}
+.in h2{font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;font-size:28px;margin:0 0 4px}
+.in p{margin:0 0 14px;color:var(--mut);font-size:14px}
+.in input{width:100%;background:rgba(0,0,0,.28);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;font:500 22px 'JetBrains Mono',monospace;letter-spacing:.5em;text-align:center}
+:root[data-theme="light"] .in input{background:#fff}
+.in input:focus{outline:2px solid var(--cur);border-color:transparent}
+.in input.bad{border-color:var(--acc);animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.err{min-height:20px;color:var(--acc);font-size:13px;margin:8px 0 6px}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:13px;font:700 15px 'Hanken Grotesk',sans-serif;letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+@media (max-width:520px){.ico{width:96px}.ico .g{width:60px;height:60px}}
+@media (prefers-reduced-motion:reduce){.in input.bad{animation:none}}
+</style>
+</head>
+<body>
+<div class="wall"></div>
+
+<main class="desk">
+  <a class="ico" href="ficha.html">
+    <div class="g g1"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></div>
+    <span>Ficha Jujutsu</span>
+  </a>
+  <a class="ico" href="livro.html">
+    <div class="g g2"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M11 8l2 2-2 2"/></svg></div>
+    <span>Livro Amaldiçoado</span>
+  </a>
+</main>
+
+<div class="bar">
+  <div class="start"><i>呪</i>Terminal Jujutsu</div>
+  <div class="clock"><b id="hr">--:--</b><span id="dt"></span></div>
+</div>
+
+<script>
+(function(){var $=function(i){return document.getElementById(i)};
+function tick(){var d=new Date();$('hr').textContent=d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'})}
+tick();setInterval(tick,15000)})();
+</script>
+</body>
+</html>
